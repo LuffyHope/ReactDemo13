@@ -25,21 +25,22 @@ const App: () => React$Node = () => {
       <TouchableOpacity
         style={styles.bttton}
         onPress={() => {
-          // http.get('users',{showLoading: true}).then((res)=>{
-          //   console.log('-------------------res', res[0].address.city)
-          // });
+          http.get('users', {showLoading: true}).then(res => {
+            console.log('-------------------res', res[0].address.city);
+          });
+          
+          // 去除重复请求
+          // for (var i = 0; i < 10; i++) {
+          //   Net.getRequest('users',{showLoading: true}).then(res => {
+          //     console.log('-------------------res', res[0].address.city);
+          //   });
+          // }
 
-          for (var i = 0; i < 10; i++) {
-            Net.getRequest('users',{showLoading: true}).then(res => {
-              console.log('-------------------res', res[0].address.city);
-            });
-          }
+          // Net.getRequest('users', {showLoading: true}).then(res => {
+          //   console.log('-------------------res', res[0].address.city);
+          // });
         }}>
         <Text>请求</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.bttton} onPress={() => {}}>
-        <Text>取消请求</Text>
       </TouchableOpacity>
     </View>
   );
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   bttton: {
     width: 200,
     height: 50,
-    margin:20,
+    margin: 20,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ff0',

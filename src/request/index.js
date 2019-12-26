@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Loading from '../LoadView/index';
 
 /*请求合并只出现一次loading*/
 let needLoadingRequestCount = 0;
@@ -7,13 +8,11 @@ function showFullScreenLoading() {
   if (needLoadingRequestCount === 0) {
     loading('start'); /*loading加载*/
   }
-  console.log('------------------------------start');
   needLoadingRequestCount++;
 }
 
 function tryHideFullScreenLoading() {
   if (needLoadingRequestCount <= 0) return;
-  console.log('------------------------------end');
   needLoadingRequestCount--;
   if (needLoadingRequestCount === 0) {
     setTimeout(tryCloseLoading, 300); /*300ms 间隔内的 loading 合并为一次*/
@@ -27,38 +26,55 @@ const tryCloseLoading = () => {
 /*loading加载*/
 function loading(str) {
   if (str == 'start') {
-    console.log('------------loading start');
+    Loading.show();
   } else if (str == 'end') {
-    console.log('------------loading end');
+    Loading.hide();
   }
 }
 /*请求拦截*/
 axios.interceptors.request.use(
-  config => {
+  async function(config) {
     const token = '123412';
     config.baseURL = 'https://jsonplaceholder.typicode.com/';
-    config.timeout = 5000;
+    config.timeout = 2;
     config.headers['TOKEN'] = token;
     if (config.showLoading) {
       showFullScreenLoading();
     }
-    console.log('------------------------config', config);
+    console.log('------------------------request');
     return config;
   },
   error => {
+    console.log('------------------------request error ',error);
     return Promise.reject(error);
   },
 );
 /*请求响应拦截*/
 axios.interceptors.response.use(
   response => {
+    console.log('------------------------response');
     if (response.config.showLoading) {
       tryHideFullScreenLoading();
     }
     return response;
   },
   error => {
-    return Promise.reject(error);
+    var errorMsg;
+    console.log('------------------------response error',error);
+    if (error.config.showLoading) {
+      tryHideFullScreenLoading();
+    }
+    Loading.hide();
+
+    const {response,request} = error;
+    if(response){
+      errorMsg=error
+    }else if(request._timedOut){
+      errorMsg="网络超时"
+    }else {
+      errorMsg="网络异常"
+    }
+    return Promise.reject(errorMsg);
   },
 );
 
@@ -69,7 +85,7 @@ axios.interceptors.response.use(
  * @returns {Promise}
  */
 
-export function get(url, config = {showLoading: true}) {
+export function get(url, config = {showLoading: false}) {
   return new Promise((resolve, reject) => {
     axios
       .get(url, config)
@@ -89,7 +105,7 @@ export function get(url, config = {showLoading: true}) {
  * @returns {Promise}
  */
 
-export function post(url, data = {}, config = {showLoading: true}) {
+export function post(url, data = {}, config = {showLoading: false}) {
   return new Promise((resolve, reject) => {
     axios
       .post(url, data, config)
