@@ -36,7 +36,7 @@ axios.interceptors.request.use(
   async function(config) {
     const token = '123412';
     config.baseURL = 'https://jsonplaceholder.typicode.com/';
-    config.timeout = 2;
+    config.timeout = 3000;
     config.headers['TOKEN'] = token;
     if (config.showLoading) {
       showFullScreenLoading();
