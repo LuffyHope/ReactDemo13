@@ -1,6 +1,8 @@
 // http.js
 
 import axios from 'axios';
+import Loading from '../LoadView/index';
+
 
 // 用于存储目前状态为pending的请求标识信息
 let pendingRequest = [];
@@ -15,6 +17,9 @@ const handleRequestIntercept = config => {
   // 可以改成`${config.method} ${config.baseURL}${config.url}`
 
   console.log('config',config.config.showLoading );
+  if(config.config.showLoading){
+    Loading.show();
+  }
   const requestMark = `${config.baseURL}${config.url}`;
   // 找当前请求的标识是否存在pendingRequest中，即是否重复请求了
   const markIndex = pendingRequest.findIndex(item => {
@@ -49,6 +54,9 @@ const handleRequestIntercept = config => {
  * @param config - 请求的配置项
  */
 const handleResponseIntercept = config => {
+  if(config.config.showLoading){
+    Loading.hide();
+  }
   // 根据请求拦截里设置的requestMark配置来寻找对应pendingRequest里对应的请求标识
   const markIndex = pendingRequest.findIndex(item => {
     return item.name === config.requestMark;
